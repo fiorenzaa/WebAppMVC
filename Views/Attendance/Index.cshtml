@@ -1,0 +1,35 @@
+@model IEnumerable<WebAppMVC.Models.Attendance>
+@{
+  ViewData["Title"] = "Daftar Siswa";
+}
+<h2>Daftar Hadir</h2>
+<p>
+  <a class="btn btn-primary" asp-action="Create">Tambah Daftar Hadir</a>
+</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>@Html.DisplayNameFor(model => model.Participant)</th>
+      <th>@Html.DisplayNameFor(model => model.Date)</th>
+      <th>@Html.DisplayNameFor(model => model.Status)</th>
+      <th>@Html.DisplayNameFor(model => model.Notes)</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var item in Model)
+    {
+      <tr>
+        <td>@Html.DisplayFor(modelItem => item.Participant)</td>
+        <td>@item.Date.ToString("dd/MM/yyyy")</td>
+        <td>@Html.DisplayFor(modelItem => item.Status)</td>
+        <td>@Html.DisplayFor(modelItem => item.Notes)</td>
+        <td>
+          <a class="btn btn-warning" asp-action="Edit" asp-route-id="@item.Id">Edit</a> 
+          <a class="btn btn-success" asp-action="Details" asp-route-id="@item.Id">Detail</a> 
+          <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Hapus</a>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

@@ -1,0 +1,87 @@
+@model WebAppMVC.Models.Attendance
+
+@{
+  ViewData["Title"] = "Edit Data Absensi";
+}
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <h2><i class="bi bi-clipboard-check"></i> Edit Data Absensi</h2>
+
+      <div class="card shadow mt-4">
+        <div class="card-body">
+          <form asp-action="Edit">
+
+            <!-- Dropdown Select Student -->
+            <div class="form-group mb-3">
+              <label asp-for="Participant" class="form-label">
+                <i class="bi bi-person"></i> Pilih Mahasiswa
+              </label>
+
+              <!-- Select yang disabled (untuk tampilan saja) -->
+              <select asp-for="Participant" class="form-select" asp-items="ViewBag.Students" disabled>
+                <option value="">-- Pilih Mahasiswa --</option>
+              </select>
+
+              <!-- Hidden input yang akan dikirim ke server -->
+              <input type="hidden" asp-for="Participant" value="@Model.Participant" />
+
+              <span asp-validation-for="Participant" class="text-danger"></span>
+            </div>
+
+            <!-- Date Input -->
+            <div class="form-group mb-3">
+              <label asp-for="Date" class="form-label">
+                <i class="bi bi-calendar"></i> Tanggal
+              </label>
+              <input asp-for="Date" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+              <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+
+            <!-- Status Dropdown -->
+            <div class="form-group mb-3">
+              <label asp-for="Status" class="form-label">
+                <i class="bi bi-check-circle"></i> Status Kehadiran
+              </label>
+              <select asp-for="Status" class="form-select">
+                <option value="">-- Pilih Status --</option>
+                <option value="Hadir">Hadir</option>
+                <option value="Izin">Izin</option>
+                <option value="Sakit">Sakit</option>
+                <option value="Alpa">Alpa</option>
+              </select>
+              <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+
+            <!-- Notes Textarea -->
+            <div class="form-group mb-3">
+              <label asp-for="Notes" class="form-label">
+                <i class="bi bi-pencil"></i> Catatan (Opsional)
+              </label>
+              <textarea asp-for="Notes" class="form-control" rows="3"
+                placeholder="Tambahkan catatan jika diperlukan..."></textarea>
+              <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Simpan
+              </button>
+              <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Batal
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+  }
+}
