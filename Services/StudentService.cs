@@ -1,46 +1,48 @@
+using WebAppMVC.Data;
 using WebAppMVC.Models;
 
 namespace WebAppMVC.Services
 {
   public class StudentService : IStudentService
   {
-    private static List<Student> _students = new List<Student>
+    private readonly ApplicationDbContext _context;
+
+    // Inject DbContext
+    public StudentService(ApplicationDbContext context)
     {
-      
-      new Student { Id = 1, Name = "Alice", Email = "alice@example.com", Age = 20 },
-      new Student { Id = 2, Name = "Bob", Email = "bob@example.com", Age = 22 }
-      
-    };
+      _context = context;
+    }
 
     public List<Student> GetAllStudents()
     {
-      return _students;
+      return _context.Students.ToList();
     }
 
     public Student GetStudentById(int id)
     {
-      return _students.FirstOrDefault(s => s.Id == id);
+      return _context.Students.Find(id);
     }
 
     public void AddStudent(Student student)
     {
-      student.Id = _students.Any() ? _students.Max(s => s.Id) + 1 : 1;
-      _students.Add(student);
+      _context.Students.Add(student);
+      _context.SaveChanges(); // ← PENTING: Simpan ke database
     }
 
     public void UpdateStudent(Student student)
     {
-      var existingStudent = _students.FirstOrDefault(s => s.Id == student.Id);
-      if (existingStudent != null)
-      {
-        existingStudent.Name = student.Name;
-        existingStudent.Email = student.Email;
-        existingStudent.Age = student.Age;
-      }
+      _context.Students.Update(student);
+      _context.SaveChanges();
     }
+
     public void DeleteStudent(int id)
     {
-      _students.RemoveAll(s => s.Id == id);
+      var student = _context.Students.Find(id);
+      if (student != null)
+      {
+        _context.Students.Remove(student);
+        _context.SaveChanges();
+      }
     }
   }
 }

@@ -1,66 +1,57 @@
+using WebAppMVC.Data;
 using WebAppMVC.Models;
 
 namespace WebAppMVC.Services
 {
   public class AttendanceService : IAttendanceService
   {
-    private static List<Attendance> _attendances = new List<Attendance>
-    {
-        new () 
-        { 
-            Id = 1, 
-            Participant = "Alice", 
-            Date = DateTime.Today, 
-            Status = "Hadir", 
-            Notes = "Tepat waktu" 
-        },
-        new () 
-        { 
-            Id = 2, 
-            Participant = "Bob", 
-            Date = DateTime.Today, 
-            Status = "Sakit", 
-            Notes = "Ada surat dokter" 
-        }
-    };
+    private readonly ApplicationDbContext _context;
 
-    public void AddAttendance(Attendance attendance)
+    // Inject DbContext
+    public AttendanceService(ApplicationDbContext context)
     {
-      attendance.Id = _attendances.Any()
-        ? _attendances.Max(a => a.Id) + 1
-        : 1;
-
-      _attendances.Add(attendance);
+      _context = context;
     }
 
     public List<Attendance> GetAllAttendances()
     {
-      return _attendances;
+      return _context.Attendances
+        .OrderByDescending(a => a.Date)
+        .ToList();
     }
 
     public Attendance GetAttendanceById(int id)
     {
-      return _attendances.FirstOrDefault(a => a.Id == id);
+      return _context.Attendances.Find(id);
     }
 
-    public void UpdateAttendance (Attendance attendance)
+    public void AddAttendance(Attendance attendance)
     {
-      var existing = _attendances.FirstOrDefault(a => a.Id == attendance.Id);
-      if (existing != null)
-      {
-        existing.Participant = attendance.Participant;
-        existing.Date = attendance.Date;
-        existing.Status = attendance.Status;
-        existing.Notes = attendance.Notes;
-      }
+      attendance.Date = DateTime.Now;
+
+      _context.Attendances.Add(attendance);
+      _context.SaveChanges(); // ← SIMPAN ke database
+
+      Console.WriteLine($"✅ Attendance saved to DB: {attendance.Participant}");
+    }
+
+    public void UpdateAttendance(Attendance attendance)
+    {
+      _context.Attendances.Update(attendance);
+      _context.SaveChanges();
+
+      Console.WriteLine($"✅ Attendance updated: {attendance.Participant}");
     }
 
     public void DeleteAttendance(int id)
     {
-      var attendance = _attendances.FirstOrDefault(a => a.Id == id);
+      var attendance = _context.Attendances.Find(id);
       if (attendance != null)
       {
-        _attendances.Remove(attendance);
+        _context.Attendances.Remove(attendance);
+        _context.SaveChanges();
+
+        Console.WriteLine($"✅ Attendance deleted: {attendance.Participant}");
       }
     }
   }
