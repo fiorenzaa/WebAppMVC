@@ -26,6 +26,26 @@ namespace WebAppMVC.Data
                 new Student { Id = 2, Name = "Bob", Email = "bob@example.com", Age = 22 },
                 new Student { Id = 3, Name = "Charlie", Email = "charlie@example.com", Age = 21 }
             );
+
+            // Seed Attendance
+            modelBuilder.Entity<Attendance>().HasData(
+                new Attendance
+                {
+                    Id = 1,
+                    Participant = "Alice",
+                    Date = DateTime.Today,
+                    Status = "Hadir",
+                    Notes = "On time"
+                },
+                new Attendance
+                {
+                    Id = 2,
+                    Participant = "Bob",
+                    Date = DateTime.Today,
+                    Status = "Tidak Hadir",
+                    Notes = "Sakit"
+                }
+            );
         }
     }
 }
