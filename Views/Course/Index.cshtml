@@ -1,0 +1,25 @@
+@model IEnumerable<WebAppMVC.Models.Course>
+
+@{
+  ViewData["Title"] = "Daftar Kelas";
+}
+
+<div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:20px;">
+    @foreach (var item in Model)
+    {
+        <div style="border:1px solid #ccc; padding:10px;">
+            <h3>@item.CourseName</h3>
+            <a class="btn btn-primary" asp-controller="Course" asp-action="Details" asp-route-id="@item.Id">
+                Lihat Kelas
+            </a>
+
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+  @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+  }
+}

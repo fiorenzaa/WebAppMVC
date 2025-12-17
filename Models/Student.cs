@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema; // Untuk [Table] dan [Column] jika diperlukan
 namespace WebAppMVC.Models
 {
   public class Student

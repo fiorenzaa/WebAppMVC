@@ -14,6 +14,7 @@ namespace WebAppMVC.Data
         // DbSet untuk setiap model (table)
         public DbSet<Student> Students { get; set; }
         public DbSet<Attendance> Attendances { get; set; }
+        public DbSet<Course> Course { get; set; }
 
         // Seed data (data awal)
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -21,14 +22,18 @@ namespace WebAppMVC.Data
             base.OnModelCreating(modelBuilder);
 
             // Seed Students
-            modelBuilder.Entity<Student>().HasData(
+            modelBuilder.Entity<Student>()
+                .ToTable("Student")
+                .HasData(
                 new Student { Id = 1, Name = "Alice", Email = "alice@example.com", Age = 20 },
                 new Student { Id = 2, Name = "Bob", Email = "bob@example.com", Age = 22 },
                 new Student { Id = 3, Name = "Charlie", Email = "charlie@example.com", Age = 21 }
             );
 
             // Seed Attendance
-            modelBuilder.Entity<Attendance>().HasData(
+            modelBuilder.Entity<Attendance>()
+                .ToTable("Attendance")
+                .HasData(
                 new Attendance
                 {
                     Id = 1,
@@ -44,6 +49,21 @@ namespace WebAppMVC.Data
                     Date = DateTime.Today,
                     Status = "Tidak Hadir",
                     Notes = "Sakit"
+                }
+            );
+            
+            modelBuilder.Entity<Course>()
+                .ToTable("Course")
+                .HasData(
+                new Course
+                {
+                    Id = 1,
+                    CourseName = "Algoritma Pemrograman"
+                },
+                new Course
+                {
+                    Id = 2,
+                    CourseName = "Basis Data"
                 }
             );
         }

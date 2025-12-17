@@ -1,108 +1,118 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WebAppMVC.Models;
-using WebAppMVC.Services;
+using WebAppMVC.Data; // Tambahkan ini
+using Microsoft.EntityFrameworkCore; // Tambahkan ini
 
 namespace WebAppMVC.Controllers
 {
   public class AttendanceController : Controller
   {
-    private readonly IAttendanceService _attendanceService;
-    private readonly IStudentService _studentService;
+    private readonly ApplicationDbContext _context;
 
-    public AttendanceController(
-      IStudentService studentService,
-      IAttendanceService attendanceService)
+    public AttendanceController(ApplicationDbContext context)
     {
-      _studentService = studentService;
-      _attendanceService = attendanceService;
+      _context = context;
     }
 
     //GET: Attendance
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-      var attendances = _attendanceService.GetAllAttendances();
-      return View(attendances);
+      return View(await _context.Attendances.ToListAsync());
+    }
+
+    // GET: Attendance/Details/{id}
+    public async Task<IActionResult> Details(int id)
+    {
+      var attendance = await _context.Attendances.FindAsync(id);
+      if (attendance == null) return NotFound();
+
+      return View(attendance);
     }
 
     // GET: Attendance/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
       // Ambil semua students
-      var students = _studentService.GetAllStudents();
+      var students = await _context.Students.ToListAsync();
       // Kirim ke View menggunakan ViewBag atau ViewData
       ViewBag.Students = new SelectList(students, "Name", "Name");
       // Format: SelectList(data, valueField, textField)
-
       return View();
     }
 
     // POST: Attendance/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(Attendance attendance)
+    public async Task<IActionResult> Create(Attendance attendance)
     {
       if (ModelState.IsValid)
       {
-        ViewBag.Message = "Data presensi berhasil disimpan!";
-        _attendanceService.AddAttendance(attendance);
-        return RedirectToAction(nameof(Index)); // Redirect ke daftar siswa
+        _context.Attendances.Add(attendance);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
       }
+
+      // Reload dropdown kalau error
+      ViewBag.Students = new SelectList(
+          await _context.Students.ToListAsync(), "Name", "Name");
 
       return View(attendance);
     }
 
     // GET: Attendance/Edit/{id}
-    public IActionResult Edit(int id)
+    public async Task<IActionResult> Edit(int id)
     {
-      var attendance = _attendanceService.GetAttendanceById(id);
-      var students = _studentService.GetAllStudents();
-      // Kirim ke View menggunakan ViewBag atau ViewData
-      ViewBag.Students = new SelectList(students, "Name", "Name");
-      if (attendance == null)
-      {
-        return NotFound();
-      }
+      var attendance = await _context.Attendances.FindAsync(id);
+      if (attendance == null) return NotFound();
+
+      ViewBag.Students = new SelectList(
+          await _context.Students.ToListAsync(), "Name", "Name");
+
       return View(attendance);
     }
 
     // POST: Attendance/Edit/{id}
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, Attendance attendance)
+    public async Task<IActionResult> Edit(int id, Attendance attendance)
     {
-      if (id != attendance.Id)
-      {
-        return NotFound();
-      }
+      if (id != attendance.Id) return NotFound();
+
       if (ModelState.IsValid)
       {
-        _attendanceService.UpdateAttendance(attendance);
+        _context.Update(attendance);
+        await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
       }
+
+      ViewBag.Students = new SelectList(
+          await _context.Students.ToListAsync(), "Name", "Name");
+
       return View(attendance);
     }
 
     // GET: Attendance/Delete/{id}
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-      var attendance = _attendanceService.GetAttendanceById(id);
-      if (attendance == null)
-      {
-        return NotFound();
-      }
+      var attendance = await _context.Attendances.FindAsync(id);
+      if (attendance == null) return NotFound();
+
       return View(attendance);
     }
 
-    // GET: Attendance/Details/{id}
-    public IActionResult Details(int id)
+    // POST: Student/Delete/{id}
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-      var attendance = _attendanceService.GetAttendanceById(id);
-      if (attendance == null)
+      var attendance = await _context.Attendances.FindAsync(id);
+      if (attendance != null)
       {
-        return NotFound();
+        _context.Attendances.Remove(attendance);
       }
-      return View(attendance);
+      await _context.SaveChangesAsync();
+      return RedirectToAction(nameof(Index));
     }
   }
 }

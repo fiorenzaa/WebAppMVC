@@ -1,0 +1,37 @@
+@model WebAppMVC.ViewModels.CourseDetailsViewModel
+
+<h2>@Model.Course.CourseName</h2>
+
+<h2>Detail Kelas</h2>
+
+<div class="mb-3">
+    <strong>Nama Kelas:</strong> @Model.Course.CourseName
+</div>
+
+<hr />
+
+<a asp-action="Index" class="btn btn-primary">Enroll Student</a>
+
+<h4>Daftar Participant</h4>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(m => m.Students[0].Name)</th>
+            <th>@Html.DisplayNameFor(m => m.Students[0].Email)</th>
+            <th>@Html.DisplayNameFor(m => m.Students[0].Age)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Students)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Email</td>
+                <td>@item.Age</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Kembali</a>

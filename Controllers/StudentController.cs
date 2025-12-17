@@ -1,24 +1,40 @@
 using Microsoft.AspNetCore.Mvc;
 using WebAppMVC.Models;
-using WebAppMVC.Services;
+using WebAppMVC.Data; // Tambahkan ini
+using Microsoft.EntityFrameworkCore; // Tambahkan ini
 
 namespace WebAppMVC.Controllers
 {
   public class StudentController : Controller
   {
-    private readonly IStudentService _studentService;
+    private readonly ApplicationDbContext _context; // Ganti IStudentService dengan ApplicationDbContext
 
     // Dependency Injection melalui konstruktor
-    public StudentController(IStudentService studentService)
+    public StudentController(ApplicationDbContext context)
     {
-      _studentService = studentService;
+      _context = context;
     }
 
     // GET: Student
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-      var students = _studentService.GetAllStudents();
-      return View(students);
+      return View(await _context.Students.ToListAsync());
+    }
+
+    // GET: Student/Details/{id}
+    public async Task<IActionResult> Details(int? id)
+    {
+      if (id == null)
+      {
+        return NotFound();
+      }
+      var student = await _context.Students
+        .FirstOrDefaultAsync(m => m.Id == id);
+      if (student == null)
+      {
+        return NotFound();
+      }
+      return View(student);
     }
 
     // GET: Student/Create
@@ -30,21 +46,25 @@ namespace WebAppMVC.Controllers
     // POST: Student/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(Student student)
+    public async Task<IActionResult> Create([Bind("Id,Name,Email,Age")] Student student)
     {
       if (ModelState.IsValid)
       {
-        ViewBag.Message = "Data siswa berhasil disimpan!";
-        _studentService.AddStudent(student);
-        return RedirectToAction(nameof(Index)); // Redirect ke daftar siswa
+        _context.Add(student);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
       }
       return View(student);
     }
 
     // GET: Student/Edit/{id}
-    public IActionResult Edit(int id)
+    public async Task<IActionResult> Edit(int? id)
     {
-      var student = _studentService.GetStudentById(id);
+      if (id == null)
+      {
+        return NotFound();
+      }
+      var student = await _context.Students.FindAsync(id);
       if (student == null)
       {
         return NotFound();
@@ -55,7 +75,7 @@ namespace WebAppMVC.Controllers
     // POST: Student/Edit/{id}
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, Student student)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Age")] Student student)
     {
       if (id != student.Id)
       {
@@ -63,16 +83,36 @@ namespace WebAppMVC.Controllers
       }
       if (ModelState.IsValid)
       {
-        _studentService.UpdateStudent(student);
+        try
+        {
+          _context.Update(student);
+          await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+          if (!StudentExists(student.Id))
+          {
+            return NotFound();
+          }
+          else
+          {
+            throw;
+          }
+        }
         return RedirectToAction(nameof(Index));
       }
       return View(student);
     }
 
     // GET: Student/Delete/{id}
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int? id)
     {
-      var student = _studentService.GetStudentById(id);
+      if (id == null)
+      {
+        return NotFound();
+      }
+      var student = await _context.Students
+      .FirstOrDefaultAsync(m => m.Id == id);
       if (student == null)
       {
         return NotFound();
@@ -83,21 +123,20 @@ namespace WebAppMVC.Controllers
     // POST: Student/Delete/{id}
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public IActionResult DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-      _studentService.DeleteStudent(id);
+      var student = await _context.Students.FindAsync(id);
+      if (student != null)
+      {
+        _context.Students.Remove(student);
+      }
+      await _context.SaveChangesAsync();
       return RedirectToAction(nameof(Index));
     }
 
-    // GET: Student/Details/{id}
-    public IActionResult Details(int id)
+    private bool StudentExists(int id)
     {
-      var student = _studentService.GetStudentById(id);
-      if (student == null)
-      {
-        return NotFound();
-      }
-      return View(student);
+      return _context.Students.Any(e => e.Id == id);
     }
   }
 }
