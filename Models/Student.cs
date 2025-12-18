@@ -6,6 +6,7 @@ namespace WebAppMVC.Models
   {
     [Key]
     public int Id { get; set; }
+
     [Required(ErrorMessage = "Nama harus diisi.")]
     [StringLength(100, ErrorMessage = "Nama tidak boleh lebih dari 100 karakter.")]
     public string Name { get; set; }
@@ -16,5 +17,8 @@ namespace WebAppMVC.Models
 
     [Range(18, 60, ErrorMessage = "Usia harus antara 18 dan 60.")]
     public int Age { get; set; }
+
+    // Navigation
+    public ICollection<Enrollment>? Enrollments { get; set; }
   }
 }

@@ -1,0 +1,39 @@
+@model WebAppMVC.ViewModels.CourseEnrollmentViewModel
+
+<h2>Enrollment Mahasiswa</h2>
+<h4>Mata Kuliah: @Model.Course.CourseName</h4>
+
+<form asp-action="Enrollment" method="post">
+    <input type="hidden" asp-for="Course.Id" />
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Pilih</th>
+                <th>Nama</th>
+                <th>Email</th>
+                <th>Usia</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var student in Model.Students)
+        {
+            <tr>
+                <td>
+                    <input type="checkbox"
+                           name="SelectedStudentIds"
+                           value="@student.Id" />
+                </td>
+                <td>@student.Name</td>
+                <td>@student.Email</td>
+                <td>@student.Age</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">
+        Simpan Enrollment
+    </button>
+    <a asp-action="Index" class="btn btn-secondary">Kembali</a>
+</form>

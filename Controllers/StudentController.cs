@@ -24,20 +24,20 @@ namespace WebAppMVC.Controllers
     // GET: Student/Details/{id}
     public async Task<IActionResult> Details(int? id)
     {
-      if (id == null)
-      {
-        return NotFound();
-      }
+      if (id == null) return NotFound();
+
       var student = await _context.Students
-        .FirstOrDefaultAsync(m => m.Id == id);
-      if (student == null)
-      {
-        return NotFound();
-      }
+        .Include(s => s.Enrollments)
+        .ThenInclude(e => e.Course)
+        .FirstOrDefaultAsync(s => s.Id == id);
+
+      if (student == null) return NotFound();
+
       return View(student);
     }
 
     // GET: Student/Create
+    [HttpGet]
     public IActionResult Create()
     {
       return View();
@@ -58,6 +58,7 @@ namespace WebAppMVC.Controllers
     }
 
     // GET: Student/Edit/{id}
+    [HttpGet]
     public async Task<IActionResult> Edit(int? id)
     {
       if (id == null)
