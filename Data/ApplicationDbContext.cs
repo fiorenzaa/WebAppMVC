@@ -59,12 +59,22 @@ namespace WebAppMVC.Data
         new Course
         {
           Id = 1,
-          CourseName = "Algoritma Pemrograman"
+          CourseName = "Algoritma Pemrograman",
+          Lecturer = "Bunyamin, S.Kom, M.Kom.",
+          Day = "Monday",
+          Start = "01.00 PM",
+          End = "03.00 PM",
+          Place = "TULT 1201"
         },
         new Course
         {
           Id = 2,
-          CourseName = "Basis Data"
+          CourseName = "Sistem Basis Data",
+          Lecturer = "Veronikha, S.Kom, M.Kom.",
+          Day = "Wednesday",
+          Start = "08.00 AM",
+          End = "10.00 AM",
+          Place = "Gedung A Ruangan 0210" 
         }
       );
 
