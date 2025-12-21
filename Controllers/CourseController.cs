@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using WebAppMVC.Models;
 using WebAppMVC.Data; // Tambahkan ini
 using Microsoft.EntityFrameworkCore;
-using WebAppMVC.ViewModels; // Tambahkan ini
+using WebAppMVC.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Metadata.Internal; // Tambahkan ini
 
 namespace WebAppMVC.Controllers
 {
@@ -22,6 +24,7 @@ namespace WebAppMVC.Controllers
       return View(await _context.Course.ToListAsync());
     }
 
+    // GET: Course/Details/{id}
     public async Task<IActionResult> Details(int id)
     {
       var course = await _context.Course
@@ -37,6 +40,90 @@ namespace WebAppMVC.Controllers
       };
 
       return View(vm);
+    }
+
+    // GET: Course/Create
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+      ViewBag.Days = new SelectList(new[]
+      {
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+      });
+      return View();
+    }
+
+    // POST: Course/Create
+    [HttpPost]
+    public async Task<IActionResult> Create(Course course)
+    {
+      if (ModelState.IsValid)
+      {
+        _context.Course.Add(course);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+      }
+
+      ViewBag.Days = new SelectList(new[]
+      {
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+      });
+      return View(course);
+    }
+
+    // GET: Course/Edit/{id}
+    public async Task<IActionResult> Edit(int id)
+    {
+      var course = await _context.Course.FindAsync(id);
+      if (course == null) return NotFound();
+
+      ViewBag.Days = new SelectList(new[]
+      {
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+      });
+      return View(course);
+    }
+
+    // POST: Attendance/Edit/{id}
+    [HttpPost]
+    public async Task<IActionResult> Edit(int id, Course course)
+    {
+      if (id != course.Id) return NotFound();
+
+      if (ModelState.IsValid)
+      {
+        _context.Update(course);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+      }
+
+      ViewBag.Days = new SelectList(new[]
+      {
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+      });
+      return View(course);
+    }
+
+    // GET: Course/Delete/{id}
+    public async Task<IActionResult> Delete(int id)
+    {
+      var course = await _context.Course.FindAsync(id);
+      if(course == null) return NotFound();
+
+      return View(course);
+    }
+
+    // POST: Course/Delete/{id}
+    [HttpPost, ActionName("Delete")]
+    public async Task<IActionResult> Delete(int id, Course course)
+    {
+      // var course = await _context.Course.FindAsync();
+      if(course != null)
+      {
+        _context.Course.Remove(course);
+      }
+      await _context.SaveChangesAsync();
+      return RedirectToAction(nameof(Index));
     }
 
     //GET: Enrollment

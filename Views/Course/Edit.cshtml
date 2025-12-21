@@ -1,0 +1,76 @@
+@model WebAppMVC.Models.Course
+
+@* Intinya, @{} = tempat nulis C# code, dan ViewData = cara kirim data dari view ke layout. *@
+@{
+  ViewData["Title"] = "Tambah Course";
+}
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col">
+      <h2>Tambah Course</h2>
+
+      <div class="card shadow mt-4">
+        <div class="card-body">
+          <form asp-action="Edit" method="post">
+
+            <div class="form-group mb-3">
+              <label asp-for="CourseName" class="form-label">Course Name</label>
+              <input asp-for="CourseName" class="form-control" />
+              <span asp-validation-for="CourseName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+              <label asp-for="Lecturer" class="form-label">Lecturer</label>
+              <input asp-for="Lecturer" class="form-control" />
+              <span asp-validation-for="Lecturer" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+              <div class="row">
+                <div class="col-md-4">
+                  <label asp-for="Day">Schedule</label>
+                  <select asp-for="Day" class="form-select" asp-items="ViewBag.Days">
+                    <option value="">-- Choose Days --</option>
+                  </select>
+                  <span asp-validation-for="Lecturer" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                  <label asp-for="Start">Start</label>
+                  <input type="time" asp-for="Start" class="form-control" value="@Model.Start"/>
+                </div>
+                <div class="col-md-4">
+                  <label asp-for="End">End</label>
+                  <input type="time" asp-for="End" class="form-control" value="@Model.End"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label asp-for="Place">Place</label>
+              <input asp-for="Place" class="form-control" />
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Simpan
+              </button>
+              <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Batal
+              </a>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+  }
+}

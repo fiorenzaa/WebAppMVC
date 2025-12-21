@@ -4,19 +4,61 @@
   ViewData["Title"] = "Daftar Kelas";
 }
 
-<div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:20px;">
-    @foreach (var item in Model)
-    {
-        <div style="border:1px solid #ccc; padding:10px;">
-            <h3>@item.CourseName</h3>
-            <a class="btn btn-primary" asp-controller="Course" asp-action="Details" asp-route-id="@item.Id">
-                Lihat Kelas
-            </a>
+<h2 class="mb-4">Daftar Course</h2>
 
-        </div>
-    }
+<a asp-action="Create" class="btn btn-success mb-4">Tambah Course</a>
 
-</div>
+@if (Model != null && Model.Any())
+{
+  <div class="card-shadow">
+    <div class="card-header p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped m-0">
+          <thead class="table-dark">
+            <tr>
+              <th class="text-center">#</th>
+              <th class="text-center">Course Name</th>
+              <th class="text-center">Lecturer</th>
+              <th class="text-center">Schedule</th>
+              <th class="text-center">Start</th>
+              <th class="text-center">End</th>
+              <th class="text-center">Place</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @{int no = 1;}
+            @foreach (var course in Model)
+            {
+              <tr>
+                <td class="text-center">@no</td>
+                <td class="text-center"><strong>@course.CourseName</strong></td>
+                <td class="text-center">@course.Lecturer</td>
+                <td class="text-center">@course.Day</td>
+                <td class="text-center">@course.Start</td>
+                <td class="text-center">@course.End</td>
+                <td class="text-center">@course.Place</td>
+                <td class="text-center text-nowrap">
+                  <a asp-controller="Course" asp-action="Edit" asp-route-id="@course.Id" class="btn btn-sm btn-warning">
+                    Edit
+                  </a>
+                  <a asp-controller="Course" asp-action="Details" asp-route-id="@course.Id" class="btn btn-sm btn-primary">
+                    Enrollment
+                  </a>
+                  <a asp-controller="Course" asp-action="Delete" asp-route-id="@course.Id" class="btn btn-sm btn-danger">
+                    Delete
+                  </a>
+                </td>
+              </tr>
+              no++;
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
 
 @section Scripts {
   @{

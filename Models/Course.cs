@@ -26,6 +26,6 @@ namespace WebAppMVC.Models
     public string Place {get; set;}
 
     // Navigation
-    public ICollection<Enrollment> Enrollments { get; set; }
+    public ICollection<Enrollment>? Enrollments { get; set; }
   }
 }

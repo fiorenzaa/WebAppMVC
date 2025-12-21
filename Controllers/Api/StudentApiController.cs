@@ -1,17 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.JsonPatch;
 using WebAppMVC.Data;
 using WebAppMVC.Models;
 
 namespace WebAppMVC.Controllers.Api
 {
   [ApiVersion("1.0")] // Menentukan versi API untuk controller ini
-  [Route("api/v{version:apiVersion}/[controller]")] // Rute dengan versi
+  [Route("api/v{version:apiVersion}/[controller]")]  // Untuk URI versioning
+  [Route("api/[controller]")] // Untuk Query String versioning
   [ApiController] // Atribut yang menyediakan perilaku khusus API (misalnya, validasi model otomatis)
-  public class StudentsApiController : ControllerBase // Warisi dari ControllerBase untuk API
+  public class StudentApiController : ControllerBase // Warisi dari ControllerBase untuk API
   {
     private readonly ApplicationDbContext _context;
-    public StudentsApiController(ApplicationDbContext context)
+    public StudentApiController(ApplicationDbContext context)
     {
       _context = context;
     }
@@ -92,27 +94,80 @@ namespace WebAppMVC.Controllers.Api
     {
       return _context.Students.Any(e => e.Id == id);
     }
-  }
-  //__________________________________________________________________
-  // Contoh Controller untuk versi 2.0 (jika ada perubahan signifikan)
-  [ApiVersion("2.0")]
-  [Route("api/v{version:apiVersion}/[controller]")]
-  [ApiController]
-  public class StudentsApiV2Controller : ControllerBase
-  {
-    private readonly ApplicationDbContext _context;
-    public StudentsApiV2Controller(ApplicationDbContext context)
+
+    // PATCH: api/v1/StudentsApi/5
+    // Untuk mengupdate sebagian resource menggunakan JSON Patch
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> PatchStudentV1(int id, [FromBody] JsonPatchDocument<Student> patchDoc)
     {
-      _context = context;
+      if (patchDoc == null)
+      {
+        return BadRequest("Patch document is null");
+      }
+
+      var student = await _context.Students.FindAsync(id);
+
+      if (student == null)
+      {
+        return NotFound();
+      }
+
+      // Terapkan perubahan dari patch document
+      patchDoc.ApplyTo(student, ModelState);
+
+      // Validasi model setelah patch diterapkan
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      // Validasi manual jika diperlukan
+      if (!TryValidateModel(student))
+      {
+        return BadRequest(ModelState);
+      }
+
+      try
+      {
+        await _context.SaveChangesAsync();
+      }
+      catch (DbUpdateConcurrencyException)
+      {
+        if (!StudentExists(id))
+        {
+          return NotFound();
+        }
+        else
+        {
+          throw;
+        }
+      }
+
+      return NoContent(); // 204 No Content
     }
-    // GET: api/v2/StudentsApi
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Student>>> GetStudentsV2()
+
+    //__________________________________________________________________
+    // Contoh Controller untuk versi 2.0 (jika ada perubahan signifikan)
+    [ApiVersion("2.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]  // Untuk URI versioning
+    [Route("api/[controller]")] // Untuk Query String versioning
+    [ApiController]
+    public class StudentsApiV2Controller : ControllerBase
     {
-      // Misalkan di V2, kita hanya mengembalikan nama dan email
-      return await _context.Students
-      .Select(s => new Student { Id = s.Id, Name = s.Name, Email = s.Email })
-      .ToListAsync();
+      private readonly ApplicationDbContext _context;
+      public StudentsApiV2Controller(ApplicationDbContext context)
+      {
+        _context = context;
+      }
+      // GET: api/v2/StudentsApi
+      [HttpGet]
+      public async Task<ActionResult<IEnumerable<Student>>> GetStudentsV2()
+      {
+        // Misalkan di V2, kita hanya mengembalikan nama dan email
+        return await _context.Students
+        .Select(s => new Student { Id = s.Id, Name = s.Name, Email = s.Email })
+        .ToListAsync();
+      }
     }
   }
 }

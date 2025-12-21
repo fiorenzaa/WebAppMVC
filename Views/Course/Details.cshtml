@@ -1,42 +1,48 @@
 @model WebAppMVC.ViewModels.CourseDetailsViewModel
 
-<h2>@Model.Course.CourseName</h2>
+<h2 class="my-4">@Model.Course.CourseName</h2>
 
-<h2>Detail Kelas</h2>
-
-<div class="mb-3">
-  <strong>Nama Kelas:</strong> @Model.Course.CourseName
+<div class="card shadow p-2 bg-light">
+  <h4>Detail Kelas</h4>
+  <div class="row">
+    <div class="col-md-3">
+      <strong>Lecturer:</strong> @Model.Course.Lecturer
+    </div>
+    <div class="col-md-3">
+      <strong>Schedule:</strong> @Model.Course.Day, @Model.Course.Start - @Model.Course.End
+    </div>
+    <div class="col-md-3">
+      <strong>Place:</strong> @Model.Course.Place
+    </div>
+  </div>
+  <div class="mt-2">
+    <a class="btn btn-primary" asp-controller="Course" asp-action="Enrollment" asp-route-id="@Model.Course.Id">
+      Enroll Student
+    </a>
+  </div>
 </div>
 
-<a class="btn btn-primary"
-  asp-controller="Course" 
-  asp-action="Enrollment" 
-  asp-route-id="@Model.Course.Id">
-  Enrollment
-</a>
-
-<hr />
-
-<h4>Daftar Participant</h4>
-
-<table class="table">
-  <thead>
-    <tr>
-      <th>@Html.DisplayNameFor(m => m.Students[0].Name)</th>
-      <th>@Html.DisplayNameFor(m => m.Students[0].Email)</th>
-      <th>@Html.DisplayNameFor(m => m.Students[0].Age)</th>
-    </tr>
-  </thead>
-  <tbody>
-    @foreach (var item in Model.Students)
-    {
+<div class="mt-4 p-2">
+  <h4>Daftar Participant</h4>
+  <table class="table">
+    <thead>
       <tr>
-        <td>@item.Name</td>
-        <td>@item.Email</td>
-        <td>@item.Age</td>
+        <th>@Html.DisplayNameFor(m => m.Students[0].Name)</th>
+        <th>@Html.DisplayNameFor(m => m.Students[0].Email)</th>
+        <th>@Html.DisplayNameFor(m => m.Students[0].Age)</th>
       </tr>
-    }
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      @foreach (var item in Model.Students)
+      {
+        <tr>
+          <td>@item.Name</td>
+          <td>@item.Email</td>
+          <td>@item.Age</td>
+        </tr>
+      }
+    </tbody>
+  </table>
 
-<a asp-action="Index" class="btn btn-secondary">Kembali</a>
+  <a asp-action="Index" class="btn btn-secondary">Kembali</a>
+</div>

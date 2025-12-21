@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using WebAppMVC.Data;
 using WebAppMVC.Services;
@@ -15,16 +16,24 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 //Register DI pasti di block service
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddNewtonsoftJson();
 
 // Add services to the container.
-builder.Services.AddControllers(); // Untuk API saja
+builder.Services.AddControllers() // Untuk API saja
+    .AddNewtonsoftJson();
 
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0); // Versi default
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ReportApiVersions = true; // Melaporkan versi API di header respons
+
+    // Mendukung URI Versioning DAN Query String Versioning
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(), // api/v1/StudentApi
+        new QueryStringApiVersionReader("api-version") // api/StudentApi?api-version=1.0
+    );
 });
 
 // Konfigurasi untuk Swagger agar memahami versioning
@@ -80,7 +89,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger(); // Mengaktifkan middleware Swagger
     app.UseSwaggerUI(options =>
     {
-    // Buat endpoint Swagger UI untuk setiap versi API
+        // Buat endpoint Swagger UI untuk setiap versi API
         foreach (var description in app.Services.GetRequiredService<IApiVersionDescriptionProvider>().ApiVersionDescriptions)
         {
             options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());

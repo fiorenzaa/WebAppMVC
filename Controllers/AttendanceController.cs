@@ -31,6 +31,7 @@ namespace WebAppMVC.Controllers
     }
 
     // GET: Attendance/Create
+    [HttpGet]
     public async Task<IActionResult> Create()
     {
       // Ambil semua students
